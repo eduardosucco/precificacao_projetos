@@ -2,6 +2,9 @@ import streamlit as st
 from fpdf import FPDF
 import streamlit.components.v1 as components
 
+# Definir o título da aba do navegador com o nome do cliente
+st.set_page_config(page_title="Proposta de Projeto")
+
 # Funções de cálculo
 def calcular_valor(estimativa_horas, desconto, parametros):
     # Base inicial: valor por hora (ajustável)
@@ -30,7 +33,7 @@ def calcular_valor(estimativa_horas, desconto, parametros):
     return valor_final
 
 # Função para gerar o PDF
-def gerar_pdf(nome_cliente, valor_final, parametros):
+def gerar_pdf(nome_cliente, valor_final, parametros, descricao, observacoes):
     pdf = FPDF()
     pdf.add_page()
     pdf.set_font("Arial", size=12)
@@ -49,6 +52,16 @@ def gerar_pdf(nome_cliente, valor_final, parametros):
     for chave, valor in parametros.items():
         pdf.cell(200, 10, txt=f"{chave.capitalize()}: {valor}", ln=True)
 
+    # Descrição do Serviço
+    pdf.ln(10)
+    pdf.cell(200, 10, txt="Descrição do Serviço:", ln=True)
+    pdf.multi_cell(200, 10, txt=descricao)
+
+    # Observações
+    pdf.ln(10)
+    pdf.cell(200, 10, txt="Observações:", ln=True)
+    pdf.multi_cell(200, 10, txt=observacoes)
+
     # Salvar o PDF
     pdf_filename = "proposta_projeto.pdf"
     pdf.output(pdf_filename)
@@ -56,12 +69,11 @@ def gerar_pdf(nome_cliente, valor_final, parametros):
 
 # Função principal da aplicação
 def main():
+    nome_cliente = st.text_input("Nome do Cliente")
     st.title("Precificação de Projetos")
 
     # Entrada de dados do cliente
-    nome_cliente = st.text_input("Nome do Cliente")
     estimativa_horas = st.number_input("Estimativa de Horas", min_value=1, value=300)
-    desconto = st.slider("Aplicar Desconto (%)", min_value=0, max_value=15, value=0)
 
     # Parâmetros do projeto com Checkbox ou Radio Button
     parametros = {
@@ -78,24 +90,44 @@ def main():
         "complexidade": st.radio("Complexidade do Projeto", ["Baixa", "Média", "Alta"]),
     }
 
+    # Descrição e Observações do Serviço
+    descricao_servico = st.text_area("Descrição do Serviço", height=150)
+    observacoes = st.text_area("Observações e Comentários", height=150)
+
     # Calcular valor em tempo real
-    valor_final = calcular_valor(estimativa_horas, desconto, parametros)
+    valor_final = calcular_valor(estimativa_horas, 0, parametros)
 
     # Barra lateral com ícones e exibição dos parâmetros
     with st.sidebar:
-        st.header("Resumo do Projeto")
-        st.markdown(f"**Cliente:** {nome_cliente}")
-        st.markdown(f"**Valor Final:** R$ {valor_final:,.2f}")
-
+        # Cabeçalho com Nome do Cliente e Valor Final
+        st.markdown(f"## :bust_in_silhouette: **{nome_cliente}**")
+        st.markdown(f"### :moneybag: **Valor Final:** R$ {valor_final:,.2f}")
+        
+        st.markdown("---")
         st.markdown("### Parâmetros Selecionados:")
-        st.markdown(f"**Escopo:** {parametros['escopo']}")
-        st.markdown(f"**Maturidade do Cliente:** {parametros['maturidade_cliente']}")
-        st.markdown(f"**Tecnologia:** {parametros['tecnologia']}")
-        st.markdown(f"**Prazo de Entrega:** {parametros['prazo_entrega']}")
-        st.markdown(f"**Complexidade:** {parametros['complexidade']}")
+
+        # Itens em Lista com ícones
+        st.markdown(f"**:clipboard: Escopo:** {parametros['escopo']}")
+        st.markdown(f"**:chart_with_upwards_trend: Maturidade do Cliente:** {parametros['maturidade_cliente']}")
+        st.markdown(f"**:computer: Tecnologia:** {parametros['tecnologia']}")
+        st.markdown(f"**:calendar: Prazo de Entrega:** {parametros['prazo_entrega']}")
+        st.markdown(f"**:bar_chart: Complexidade:** {parametros['complexidade']}")
+        
+        st.markdown("---")
+        st.markdown(f"### :memo: Descrição do Serviço\n{descricao_servico}")
+        st.markdown(f"### :speech_balloon: Observações\n{observacoes}")
+
+        # Slider para Aplicar Desconto no final
+        desconto = st.slider("Aplicar Desconto (%)", min_value=0, max_value=15, value=0)
+
+        # Recalcular valor com desconto
+        valor_com_desconto = calcular_valor(estimativa_horas, desconto, parametros)
+
+        st.markdown(f"### :money_with_wings: Desconto: {desconto}%")
+        st.markdown(f"**Valor Final com Desconto: R$ {valor_com_desconto:,.2f}**")
 
         # Gerar PDF
-        pdf_path = gerar_pdf(nome_cliente, valor_final, parametros)
+        pdf_path = gerar_pdf(nome_cliente, valor_com_desconto, parametros, descricao_servico, observacoes)
         with open(pdf_path, "rb") as pdf_file:
             st.download_button(
                 label="Baixar Proposta em PDF",
