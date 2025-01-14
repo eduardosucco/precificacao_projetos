@@ -92,6 +92,7 @@ def main():
             border-radius: 8px;
             font-size: 30px;
             font-weight: bold;
+            color: rgb(14, 17, 23);  /* Cor da fonte alterada */
             box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
             z-index: 10;
         }}
