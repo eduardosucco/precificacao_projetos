@@ -1,17 +1,11 @@
 import streamlit as st
-from fpdf import FPDF
+from gerar_pdf import gerar_pdf  # Importando a função de geração de PDF
 import streamlit.components.v1 as components
 
-# Definir o título da aba do navegador com o nome do cliente
-st.set_page_config(page_title="Proposta de Projeto")
-
-# Funções de cálculo
+# Funções de cálculo (sem alterações)
 def calcular_valor(estimativa_horas, desconto, parametros):
-    # Base inicial: valor por hora (ajustável)
-    valor_por_hora = 200  
+    valor_por_hora = 200
     valor_base = estimativa_horas * valor_por_hora
-
-    # Ajustes no valor base de acordo com os parâmetros
     ajustes = {
         "escopo": {"Sem escopo definido": 1.2, "Apenas com diretrizes gerais": 1.1,
                    "Informações suficientes para iniciar o trabalho": 1.05,
@@ -22,50 +16,11 @@ def calcular_valor(estimativa_horas, desconto, parametros):
                           "61 - 90 dias": 1.0, "> 90 dias": 0.9},
         "complexidade": {"Baixa": 1.0, "Média": 1.2, "Alta": 1.5},
     }
-
     for chave, ajuste in ajustes.items():
         valor_base *= ajuste[parametros[chave]]
-
-    # Aplicar desconto
     desconto_valor = valor_base * (desconto / 100)
     valor_final = valor_base - desconto_valor
-
     return valor_final
-
-# Função para gerar o PDF
-def gerar_pdf(nome_cliente, valor_final, parametros, descricao, observacoes):
-    pdf = FPDF()
-    pdf.add_page()
-    pdf.set_font("Arial", size=12)
-
-    # Cabeçalho
-    pdf.cell(200, 10, txt="Proposta de Projeto", ln=True, align='C')
-    pdf.ln(10)
-
-    # Informações do cliente e valor
-    pdf.cell(200, 10, txt=f"Cliente: {nome_cliente}", ln=True)
-    pdf.cell(200, 10, txt=f"Valor Final: R$ {valor_final:.2f}", ln=True)
-    pdf.ln(10)
-
-    # Detalhes do projeto
-    pdf.cell(200, 10, txt="Detalhes do Projeto:", ln=True)
-    for chave, valor in parametros.items():
-        pdf.cell(200, 10, txt=f"{chave.capitalize()}: {valor}", ln=True)
-
-    # Descrição do Serviço
-    pdf.ln(10)
-    pdf.cell(200, 10, txt="Descrição do Serviço:", ln=True)
-    pdf.multi_cell(200, 10, txt=descricao)
-
-    # Observações
-    pdf.ln(10)
-    pdf.cell(200, 10, txt="Observações:", ln=True)
-    pdf.multi_cell(200, 10, txt=observacoes)
-
-    # Salvar o PDF
-    pdf_filename = "proposta_projeto.pdf"
-    pdf.output(pdf_filename)
-    return pdf_filename
 
 # Função principal da aplicação
 def main():
@@ -127,12 +82,12 @@ def main():
         st.markdown(f"**Valor Final com Desconto: R$ {valor_com_desconto:,.2f}**")
 
         # Gerar PDF
-        pdf_path = gerar_pdf(nome_cliente, valor_com_desconto, parametros, descricao_servico, observacoes)
+        pdf_path = gerar_pdf(nome_cliente, valor_com_desconto, parametros, descricao_servico, observacoes, desconto)
         with open(pdf_path, "rb") as pdf_file:
             st.download_button(
-                label="Baixar Proposta em PDF",
+                label="Baixar Nota Fiscal em PDF",
                 data=pdf_file,
-                file_name="proposta_projeto.pdf",
+                file_name="nota_fiscal_servico.pdf",
                 mime="application/pdf",
             )
 
