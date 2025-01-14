@@ -85,16 +85,20 @@ def main():
     <style>
         .float-value {{
             position: fixed;
-            top: 10%;
+            top: 15%;
             right: 5%;
-            background-color: rgba(255, 255, 255, 0.8);
-            padding: 10px;
-            border-radius: 8px;
-            font-size: 30px;
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 15px 25px;
+            border-radius: 12px;
+            font-size: 32px;
             font-weight: bold;
-            color: rgb(14, 17, 23);  /* Cor da fonte alterada */
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            color: rgb(14, 17, 23);  /* Cor da fonte */
+            box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
             z-index: 10;
+            transition: transform 0.3s ease-in-out;
+        }}
+        .float-value:hover {{
+            transform: scale(1.05);
         }}
     </style>
     <div class="float-value">
