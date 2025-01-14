@@ -1,61 +1,97 @@
-from fpdf import FPDF
+from weasyprint import HTML
 from datetime import datetime
 
 def gerar_pdf(nome_cliente, valor_final, parametros, descricao, observacoes, desconto):
-    pdf = FPDF()
-    pdf.add_page()
-    pdf.set_font("Arial", size=12)
-
-    # Cabeçalho
-    pdf.cell(200, 10, txt="NOTA FISCAL DE SERVIÇO", ln=True, align='C')
-    pdf.ln(10)
-
-    # Dados do Cliente
-    pdf.cell(200, 10, txt=f"Cliente: {nome_cliente}", ln=True)
-    
     # Data Atual
     data_atual = datetime.now().strftime("%d/%m/%Y")
-    pdf.cell(200, 10, txt=f"Data: {data_atual}", ln=True)
-    
-    pdf.ln(10)
 
-    # Tabela de Itens (Parâmetros do Projeto)
-    pdf.cell(200, 10, txt="Detalhes do Projeto:", ln=True)
+    # Gerar conteúdo HTML para o PDF
+    html_content = f"""
+    <html>
+    <head>
+        <style>
+            body {{
+                font-family: Arial, sans-serif;
+                color: #333;
+                margin: 20px;
+            }}
+            h1 {{
+                text-align: center;
+                color: #4CAF50;
+            }}
+            h2 {{
+                color: #333;
+            }}
+            .section-title {{
+                font-weight: bold;
+                margin-top: 20px;
+                margin-bottom: 10px;
+            }}
+            .content {{
+                margin-left: 20px;
+            }}
+            .footer {{
+                text-align: center;
+                font-size: 10px;
+                margin-top: 30px;
+                color: #888;
+            }}
+            .highlight {{
+                font-weight: bold;
+                color: #4CAF50;
+            }}
+            .table {{
+                width: 100%;
+                border-collapse: collapse;
+            }}
+            .table td, .table th {{
+                padding: 8px;
+                border: 1px solid #ddd;
+            }}
+            .table th {{
+                background-color: #f2f2f2;
+            }}
+        </style>
+    </head>
+    <body>
+        <h1>NOTA FISCAL DE SERVIÇO</h1>
+        <p><strong>Cliente:</strong> {nome_cliente}</p>
+        <p><strong>Data:</strong> {data_atual}</p>
+
+        <div class="section-title">Detalhes do Projeto:</div>
+        <table class="table">
+            <tr><th>Parâmetro</th><th>Valor</th></tr>
+    """
+
+    # Adicionar os parâmetros na tabela
     for chave, valor in parametros.items():
-        pdf.cell(200, 10, txt=f"{chave.capitalize()}: {valor}", ln=True)
+        html_content += f"<tr><td>{chave.capitalize()}</td><td>{valor}</td></tr>"
 
-    # Descrição do Serviço
-    pdf.ln(10)
-    pdf.cell(200, 10, txt="Descrição do Serviço:", ln=True)
-    pdf.multi_cell(200, 10, txt=descricao)
+    html_content += f"""
+        </table>
 
-    # Observações
-    pdf.ln(10)
-    pdf.cell(200, 10, txt="Observações:", ln=True)
-    pdf.multi_cell(200, 10, txt=observacoes)
+        <div class="section-title">Descrição do Serviço:</div>
+        <p class="content">{descricao}</p>
 
-    # Calcular os impostos e mostrar total
-    impostos = valor_final * 0.10  # Exemplo: 10% de imposto
-    total_com_impostos = valor_final + impostos
+        <div class="section-title">Observações:</div>
+        <p class="content">{observacoes}</p>
 
-    pdf.ln(10)
-    pdf.cell(200, 10, txt=f"Subtotal: R$ {valor_final:,.2f}", ln=True)
-    pdf.cell(200, 10, txt=f"Impostos (10%): R$ {impostos:,.2f}", ln=True)
-    pdf.cell(200, 10, txt=f"**Total com Impostos: R$ {total_com_impostos:,.2f}**", ln=True)
+        <div class="section-title">Cálculos:</div>
+        <p><strong>Subtotal:</strong> R$ {valor_final:,.2f}</p>
+        <p><strong>Impostos (10%):</strong> R$ {valor_final * 0.10:,.2f}</p>
+        <p><strong>Total com Impostos:</strong> R$ {valor_final * 1.10:,.2f}</p>
 
-    # Desconto aplicado
-    pdf.ln(10)
-    pdf.cell(200, 10, txt=f"Desconto Aplicado: {desconto}%", ln=True)
-    desconto_valor = valor_final * (desconto / 100)
-    valor_com_desconto = valor_final - desconto_valor
-    pdf.cell(200, 10, txt=f"**Valor Final com Desconto: R$ {valor_com_desconto:,.2f}**", ln=True)
+        <p><strong>Desconto Aplicado:</strong> {desconto}%</p>
+        <p class="highlight"><strong>Valor Final com Desconto:</strong> R$ {valor_final - (valor_final * desconto / 100):,.2f}</p>
 
-    # Rodapé com Informações Fiscais (exemplo)
-    pdf.ln(20)
-    pdf.set_font("Arial", "I", size=10)
-    pdf.cell(200, 10, txt="Serviço prestado conforme contrato. Todos os impostos são de responsabilidade do prestador.", ln=True, align='C')
+        <div class="footer">
+            <p>Serviço prestado conforme contrato. Todos os impostos são de responsabilidade do prestador.</p>
+        </div>
+    </body>
+    </html>
+    """
 
-    # Salvar o PDF
+    # Gerar o PDF a partir do HTML
     pdf_filename = "nota_fiscal_servico.pdf"
-    pdf.output(pdf_filename)
+    HTML(string=html_content).write_pdf(pdf_filename)
     return pdf_filename
