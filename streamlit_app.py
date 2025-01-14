@@ -77,20 +77,21 @@ def main():
         "complexidade": st.radio("Complexidade do Projeto", ["Baixa", "Média", "Alta"]),
     }
 
-    # Calcular valor final
-    if st.button("Calcular Valor"):
-        valor_final = calcular_valor(estimativa_horas, desconto, parametros)
-        st.write(f"**Valor Final do Projeto: R$ {valor_final:.2f}**")
+    # Calcular valor em tempo real
+    valor_final = calcular_valor(estimativa_horas, desconto, parametros)
+    
+    # Exibir valor final com separador de milhares e fonte maior
+    st.markdown(f"### **Valor Final do Projeto: R$ {valor_final:,.2f}**")
 
-        # Gerar PDF
-        pdf_path = gerar_pdf(nome_cliente, valor_final, parametros)
-        with open(pdf_path, "rb") as pdf_file:
-            st.download_button(
-                label="Baixar Proposta em PDF",
-                data=pdf_file,
-                file_name="proposta_projeto.pdf",
-                mime="application/pdf",
-            )
+    # Gerar PDF
+    pdf_path = gerar_pdf(nome_cliente, valor_final, parametros)
+    with open(pdf_path, "rb") as pdf_file:
+        st.download_button(
+            label="Baixar Proposta em PDF",
+            data=pdf_file,
+            file_name="proposta_projeto.pdf",
+            mime="application/pdf",
+        )
 
 if __name__ == "__main__":
     main()
