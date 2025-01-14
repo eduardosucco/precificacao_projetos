@@ -66,12 +66,14 @@ def gerar_pdf(nome_cliente, valor_final, parametros, descricao, observacoes):
 
 # Função principal da aplicação
 def main():
+    # Definir o título da aba do navegador com o nome do cliente
+    nome_cliente = st.text_input("Nome do Cliente")
+    st.set_page_config(page_title=f"Proposta de {nome_cliente}")
+
     st.title("Precificação de Projetos")
 
     # Entrada de dados do cliente
-    nome_cliente = st.text_input("Nome do Cliente")
     estimativa_horas = st.number_input("Estimativa de Horas", min_value=1, value=300)
-    desconto = st.slider("Aplicar Desconto (%)", min_value=0, max_value=15, value=0)
 
     # Parâmetros do projeto com Checkbox ou Radio Button
     parametros = {
@@ -93,7 +95,7 @@ def main():
     observacoes = st.text_area("Observações e Comentários", height=150)
 
     # Calcular valor em tempo real
-    valor_final = calcular_valor(estimativa_horas, desconto, parametros)
+    valor_final = calcular_valor(estimativa_horas, 0, parametros)
 
     # Barra lateral com ícones e exibição dos parâmetros
     with st.sidebar:
@@ -115,8 +117,17 @@ def main():
         st.markdown(f"### :memo: Descrição do Serviço\n{descricao_servico}")
         st.markdown(f"### :speech_balloon: Observações\n{observacoes}")
 
+        # Slider para Aplicar Desconto no final
+        desconto = st.slider("Aplicar Desconto (%)", min_value=0, max_value=15, value=0)
+
+        # Recalcular valor com desconto
+        valor_com_desconto = calcular_valor(estimativa_horas, desconto, parametros)
+
+        st.markdown(f"### :money_with_wings: Desconto: {desconto}%")
+        st.markdown(f"**Valor Final com Desconto: R$ {valor_com_desconto:,.2f}**")
+
         # Gerar PDF
-        pdf_path = gerar_pdf(nome_cliente, valor_final, parametros, descricao_servico, observacoes)
+        pdf_path = gerar_pdf(nome_cliente, valor_com_desconto, parametros, descricao_servico, observacoes)
         with open(pdf_path, "rb") as pdf_file:
             st.download_button(
                 label="Baixar Proposta em PDF",
