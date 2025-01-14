@@ -2,6 +2,9 @@ import streamlit as st
 from fpdf import FPDF
 import streamlit.components.v1 as components
 
+# Definir o título da aba do navegador com o nome do cliente
+st.set_page_config(page_title="Proposta de Projeto")
+
 # Funções de cálculo
 def calcular_valor(estimativa_horas, desconto, parametros):
     # Base inicial: valor por hora (ajustável)
@@ -66,10 +69,7 @@ def gerar_pdf(nome_cliente, valor_final, parametros, descricao, observacoes):
 
 # Função principal da aplicação
 def main():
-    # Definir o título da aba do navegador com o nome do cliente
     nome_cliente = st.text_input("Nome do Cliente")
-    st.set_page_config(page_title=f"Proposta de {nome_cliente}")
-
     st.title("Precificação de Projetos")
 
     # Entrada de dados do cliente
