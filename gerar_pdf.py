@@ -1,4 +1,5 @@
 from fpdf import FPDF
+from datetime import datetime
 
 def gerar_pdf(nome_cliente, valor_final, parametros, descricao, observacoes, desconto):
     pdf = FPDF()
@@ -11,8 +12,11 @@ def gerar_pdf(nome_cliente, valor_final, parametros, descricao, observacoes, des
 
     # Dados do Cliente
     pdf.cell(200, 10, txt=f"Cliente: {nome_cliente}", ln=True)
-    pdf.ln(5)
-    pdf.cell(200, 10, txt=f"Data: {pdf.get_date()}", ln=True)
+    
+    # Data Atual
+    data_atual = datetime.now().strftime("%d/%m/%Y")
+    pdf.cell(200, 10, txt=f"Data: {data_atual}", ln=True)
+    
     pdf.ln(10)
 
     # Tabela de Itens (Parâmetros do Projeto)
