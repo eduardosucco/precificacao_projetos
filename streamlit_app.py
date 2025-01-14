@@ -1,5 +1,6 @@
 import streamlit as st
 from fpdf import FPDF
+import streamlit.components.v1 as components
 
 # Funções de cálculo
 def calcular_valor(estimativa_horas, desconto, parametros):
@@ -79,42 +80,29 @@ def main():
 
     # Calcular valor em tempo real
     valor_final = calcular_valor(estimativa_horas, desconto, parametros)
-    
-    # Exibir valor final com separador de milhares e fonte maior, e efeito de balão flutuante
-    st.markdown(f"""
-    <style>
-        .float-value {{
-            position: fixed;
-            top: 15%;
-            right: 5%;
-            background-color: rgba(255, 255, 255, 0.9);
-            padding: 15px 25px;
-            border-radius: 12px;
-            font-size: 32px;
-            font-weight: bold;
-            color: rgb(14, 17, 23);  /* Cor da fonte */
-            box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
-            z-index: 10;
-            transition: transform 0.3s ease-in-out;
-        }}
-        .float-value:hover {{
-            transform: scale(1.05);
-        }}
-    </style>
-    <div class="float-value">
-        Valor Final do Projeto: R$ {valor_final:,.2f}
-    </div>
-    """, unsafe_allow_html=True)
 
-    # Gerar PDF
-    pdf_path = gerar_pdf(nome_cliente, valor_final, parametros)
-    with open(pdf_path, "rb") as pdf_file:
-        st.download_button(
-            label="Baixar Proposta em PDF",
-            data=pdf_file,
-            file_name="proposta_projeto.pdf",
-            mime="application/pdf",
-        )
+    # Barra lateral com ícones e exibição dos parâmetros
+    with st.sidebar:
+        st.header("Resumo do Projeto")
+        st.markdown(f"**Cliente:** {nome_cliente}")
+        st.markdown(f"**Valor Final:** R$ {valor_final:,.2f}")
+
+        st.markdown("### Parâmetros Selecionados:")
+        st.markdown(f"**Escopo:** {parametros['escopo']}")
+        st.markdown(f"**Maturidade do Cliente:** {parametros['maturidade_cliente']}")
+        st.markdown(f"**Tecnologia:** {parametros['tecnologia']}")
+        st.markdown(f"**Prazo de Entrega:** {parametros['prazo_entrega']}")
+        st.markdown(f"**Complexidade:** {parametros['complexidade']}")
+
+        # Gerar PDF
+        pdf_path = gerar_pdf(nome_cliente, valor_final, parametros)
+        with open(pdf_path, "rb") as pdf_file:
+            st.download_button(
+                label="Baixar Proposta em PDF",
+                data=pdf_file,
+                file_name="proposta_projeto.pdf",
+                mime="application/pdf",
+            )
 
 if __name__ == "__main__":
     main()
