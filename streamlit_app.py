@@ -80,8 +80,26 @@ def main():
     # Calcular valor em tempo real
     valor_final = calcular_valor(estimativa_horas, desconto, parametros)
     
-    # Exibir valor final com separador de milhares e fonte maior
-    st.markdown(f"### **Valor Final do Projeto: R$ {valor_final:,.2f}**")
+    # Exibir valor final com separador de milhares e fonte maior, e efeito de balão flutuante
+    st.markdown(f"""
+    <style>
+        .float-value {{
+            position: fixed;
+            top: 10%;
+            right: 5%;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 30px;
+            font-weight: bold;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+        }}
+    </style>
+    <div class="float-value">
+        Valor Final do Projeto: R$ {valor_final:,.2f}
+    </div>
+    """, unsafe_allow_html=True)
 
     # Gerar PDF
     pdf_path = gerar_pdf(nome_cliente, valor_final, parametros)
