@@ -69,9 +69,9 @@ def gerar_pdf(nome_cliente, valor_final, parametros, descricao, observacoes):
 
 # Função principal da aplicação
 def main():
-    nome_cliente = st.text_input("Nome do Cliente")
     st.title("Precificação de Projetos")
-
+    nome_cliente = st.text_input("Nome do Cliente")
+    
     # Entrada de dados do cliente
     estimativa_horas = st.number_input("Estimativa de Horas", min_value=1, value=300)
 
